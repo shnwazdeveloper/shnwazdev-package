@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation and landing page for @shnwazdeveloper/shnwazdev, a safe realtime utility toolkit for JavaScript projects.">
+    <meta name="theme-color" content="#f4f1ea">
+    <meta property="og:title" content="@shnwazdeveloper/shnwazdev">
+    <meta property="og:description" content="Safe realtime utilities, redacted logs, guarded fetch, rate limiting, circuit breakers, and GitHub Packages publishing docs.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./assets/shnwazdev-preview.png">
+    <title>@shnwazdeveloper/shnwazdev Docs</title>
+    <link rel="preload" href="./assets/shnwazdev-preview.png" as="image">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header glass-panel">
+        <a class="brand" href="#top" aria-label="@shnwazdeveloper/shnwazdev home">
+          <span class="brand-mark">sd</span>
+          <span>
+            <strong>@shnwazdeveloper/shnwazdev</strong>
+            <small>Safe realtime toolkit</small>
+          </span>
+        </a>
+        <nav class="top-nav" aria-label="Primary navigation">
+          <a href="#install">Install</a>
+          <a href="#api">API</a>
+          <a href="#safety">Safety</a>
+          <a href="#publish">Publish</a>
+        </nav>
+        <a class="repo-link" href="https://github.com/shnwazdeveloper/shnwazdev-package">GitHub</a>
+      </header>
+
+      <main id="top">
+        <section class="hero-section" aria-labelledby="hero-title">
+          <picture class="hero-media" aria-hidden="true">
+            <img src="./assets/shnwazdev-preview.png" alt="">
+          </picture>
+          <div class="hero-overlay"></div>
+          <div class="hero-content" data-motion>
+            <p class="eyebrow">GitHub Packages docs for v0.4.0</p>
+            <h1 id="hero-title">
+              <span class="title-desktop">@shnwazdeveloper</span>
+              <span class="title-mobile">@shnwaz</span>
+              <span class="title-mobile">developer</span>
+              <span>/shnwazdev</span>
+            </h1>
+            <p class="hero-copy">
+              A dependency-free JavaScript toolkit for realtime state, events, polling,
+              safer logs, guarded fetch calls, rate limiting, and circuit-breaker recovery.
+            </p>
+            <div class="hero-actions">
+              <a class="button primary" href="#install">Install package</a>
+              <a class="button secondary" href="#api">Read API docs</a>
+            </div>
+            <div class="hero-facts" aria-label="Package facts">
+              <span>Package: <strong>@shnwazdeveloper/shnwazdev</strong></span>
+              <span>Registry: <strong>npm.pkg.github.com</strong></span>
+              <span>License: <strong>MIT</strong></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="intro-band" aria-label="Overview">
+          <div class="section-inner three-column" data-motion>
+            <article class="stat-card glass-panel">
+              <span class="stat-value">24</span>
+              <h2>Exports</h2>
+              <p>Realtime, timing, safety, and resilience helpers in one small package.</p>
+            </article>
+            <article class="stat-card glass-panel">
+              <span class="stat-value">0</span>
+              <h2>Runtime dependencies</h2>
+              <p>Simple ESM utilities that work without pulling in a framework.</p>
+            </article>
+            <article class="stat-card glass-panel">
+              <span class="stat-value">Safe</span>
+              <h2>Publish path</h2>
+              <p>Secret scanning, tests, and package dry-run run before release.</p>
+            </article>
+          </div>
+        </section>
+
+        <div class="docs-layout section-inner">
+          <aside class="docs-sidebar glass-panel" aria-label="Docs navigation">
+            <a href="#install">Install</a>
+            <a href="#quick-start">Quick start</a>
+            <a href="#api">API reference</a>
+            <a href="#realtime">Realtime</a>
+            <a href="#timing">Timing</a>
+            <a href="#safety">Safety</a>
+            <a href="#resilience">Resilience</a>
+            <a href="#publish">Publishing</a>
+            <a href="#troubleshooting">Troubleshooting</a>
+          </aside>
+
+          <div class="docs-content">
+            <section id="install" class="doc-section" data-motion>
+              <div class="section-heading">
+                <p class="eyebrow">Install</p>
+                <h2>Install from GitHub Packages</h2>
+                <p>
+                  The package is scoped to `@shnwazdeveloper`, so npm must use
+                  GitHub Packages for that scope.
+                </p>
+              </div>
+
+              <div class="code-grid">
+                <article class="code-panel glass-panel">
+                  <div class="code-title">
+                    <span>User or project .npmrc</span>
+                    <button class="copy-button" data-copy="@shnwazdeveloper:registry=https://npm.pkg.github.com">Copy</button>
+                  </div>
+                  <pre><code>@shnwazdeveloper:registry=https://npm.pkg.github.com</code></pre>
+                </article>
+                <article class="code-panel glass-panel">
+                  <div class="code-title">
+                    <span>Authenticate npm</span>
+                    <button class="copy-button" data-copy="gh auth refresh -h github.com -s read:packages&#10;$token = gh auth token&#10;npm config set &quot;//npm.pkg.github.com/:_authToken&quot; &quot;$token&quot; --location=user">Copy</button>
+                  </div>
+                  <pre><code>gh auth refresh -h github.com -s read:packages
+$token = gh auth token
+npm config set "//npm.pkg.github.com/:_authToken" "$token" --location=user</code></pre>
+                </article>
+                <article class="code-panel glass-panel wide">
+                  <div class="code-title">
+                    <span>Install latest</span>
+                    <button class="copy-button" data-copy="npm install @shnwazdeveloper/shnwazdev@0.4.0">Copy</button>
+                  </div>
+                  <pre><code>npm install @shnwazdeveloper/shnwazdev@0.4.0</code></pre>
+                </article>
+              </div>
+            </section>
+
+            <section id="quick-start" class="doc-section" data-motion>
+              <div class="section-heading">
+                <p class="eyebrow">Quick start</p>
+                <h2>Use the main tools together</h2>
+                <p>
+                  Combine state, events, safe logging, rate limiting, and guarded fetch calls
+                  in app code, bots, dashboards, workers, and APIs.
+                </p>
+              </div>
+              <article class="code-panel glass-panel">
+                <div class="code-title">
+                  <span>Example</span>
+                  <button class="copy-button" data-copy="import { createEventBus, createRateLimiter, createRealtimeStore, createSafeLogger, safeFetch } from &quot;@shnwazdeveloper/shnwazdev&quot;;&#10;&#10;const store = createRealtimeStore({ online: false });&#10;const bus = createEventBus();&#10;const logger = createSafeLogger(console);&#10;const limiter = createRateLimiter({ limit: 10, interval: 60000 });&#10;&#10;limiter.assert(&quot;user:shnwazdeveloper&quot;);&#10;store.setState({ online: true });&#10;bus.emit(&quot;status&quot;, store.getState());&#10;&#10;const result = await safeFetch(&quot;https://api.github.com&quot;, {&#10;  allowedOrigins: [&quot;https://api.github.com&quot;],&#10;  timeout: 3000&#10;});&#10;&#10;logger.info(&quot;request finished&quot;, result.safeRequest);">Copy</button>
+                </div>
+                <pre><code>import {
+  createEventBus,
+  createRateLimiter,
+  createRealtimeStore,
+  createSafeLogger,
+  safeFetch
+} from "@shnwazdeveloper/shnwazdev";
+
+const store = createRealtimeStore({ online: false });
+const bus = createEventBus();
+const logger = createSafeLogger(console);
+const limiter = createRateLimiter({ limit: 10, interval: 60000 });
+
+limiter.assert("user:shnwazdeveloper");
+store.setState({ online: true });
+bus.emit("status", store.getState());
+
+const result = await safeFetch("https://api.github.com", {
+  allowedOrigins: ["https://api.github.com"],
+  timeout: 3000
+});
+
+logger.info("request finished", result.safeRequest);</code></pre>
+              </article>
+            </section>
+
+            <section id="api" class="doc-section" data-motion>
+              <div class="section-heading">
+                <p class="eyebrow">API reference</p>
+                <h2>Everything exported by the package</h2>
+                <p>
+                  Filter by area to scan the package quickly. Every API is dependency-free
+                  and exported from the package root.
+                </p>
+              </div>
+              <div class="filter-bar glass-panel" role="group" aria-label="API filters">
+                <button class="filter-button active" data-filter="all">All</button>
+                <button class="filter-button" data-filter="realtime">Realtime</button>
+                <button class="filter-button" data-filter="timing">Timing</button>
+                <button class="filter-button" data-filter="safety">Safety</button>
+                <button class="filter-button" data-filter="resilience">Resilience</button>
+              </div>
+              <div class="api-grid">
+                <article class="api-card glass-panel" data-group="realtime">
+                  <h3>createEventBus</h3>
+                  <p>Local publish/subscribe events with `on`, `once`, `off`, `emit`, and `emitAsync`.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="realtime">
+                  <h3>createRealtimeStore</h3>
+                  <p>Small state container with subscriptions, selectors, updates, and `waitFor`.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="realtime">
+                  <h3>createPoller</h3>
+                  <p>Repeated async work with `onData`, `onError`, `runOnce`, `until`, and backoff.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="realtime">
+                  <h3>createHeartbeat</h3>
+                  <p>Live beat signals for bots, dashboards, workers, and connection monitors.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="timing">
+                  <h3>sleep</h3>
+                  <p>Abortable async delay that cleans up abort listeners on resolve and abort.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="timing">
+                  <h3>timeout</h3>
+                  <p>Wrap a promise and reject with `TimeoutError` if it takes too long.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="timing">
+                  <h3>retry</h3>
+                  <p>Retry unstable async work with delay, backoff factor, and custom retry logic.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="timing">
+                  <h3>debounce</h3>
+                  <p>Delay frequent calls until input settles. Useful for search and resize events.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="timing">
+                  <h3>throttle</h3>
+                  <p>Limit high-frequency calls from scroll, pointer, and progress events.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>redactSensitiveData</h3>
+                  <p>Replace sensitive keys and token-like strings with `[REDACTED]`.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>detectSecrets</h3>
+                  <p>Find sensitive values and return masked previews without exposing the raw value.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>assertNoSecrets</h3>
+                  <p>Throw `SensitiveDataError` when a payload contains sensitive data.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>safeJsonStringify</h3>
+                  <p>Stringify circular data safely while redacting secrets.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>createSafeLogger</h3>
+                  <p>Console-style logger that redacts every argument before writing.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>maskSecret</h3>
+                  <p>Create masked secret previews with no raw characters shown by default.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>createSecureId</h3>
+                  <p>Generate crypto-safe request IDs, trace IDs, and session-safe identifiers.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>constantTimeEqual</h3>
+                  <p>Compare strings without returning early at the first different character.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>sanitizeHeaders</h3>
+                  <p>Prepare request or response headers for logs by redacting private fields.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="safety">
+                  <h3>sanitizeUrl</h3>
+                  <p>Redact query params, credentials, and token-like values before logging URLs.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="resilience">
+                  <h3>createRateLimiter</h3>
+                  <p>In-memory rate limiting by key with `consume`, `assert`, `reset`, and snapshots.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="resilience">
+                  <h3>createCircuitBreaker</h3>
+                  <p>Open after repeated failures and recover through a half-open test call.</p>
+                </article>
+                <article class="api-card glass-panel" data-group="resilience">
+                  <h3>safeFetch</h3>
+                  <p>Origin-guarded fetch with timeout support and redacted request metadata.</p>
+                </article>
+              </div>
+            </section>
+
+            <section id="realtime" class="doc-section split-doc" data-motion>
+              <div>
+                <p class="eyebrow">Realtime</p>
+                <h2>State, events, polling, and heartbeat</h2>
+                <p>
+                  The realtime helpers are meant for dashboards, bots, small services,
+                  worker loops, browser apps, and local tools that need live updates
+                  without a heavy framework.
+                </p>
+              </div>
+              <article class="glass-panel doc-list">
+                <h3>Recommended use</h3>
+                <ul>
+                  <li>Use `createRealtimeStore` for shared state.</li>
+                  <li>Use `createEventBus` for app messages.</li>
+                  <li>Use `createPoller` for repeated async checks.</li>
+                  <li>Use `createHeartbeat` for liveness signals.</li>
+                </ul>
+              </article>
+            </section>
+
+            <section id="timing" class="doc-section split-doc" data-motion>
+              <div>
+                <p class="eyebrow">Timing</p>
+                <h2>Control async work and frequent input</h2>
+                <p>
+                  Timing helpers keep small apps predictable: abort delays, cap slow work,
+                  retry unstable operations, and reduce noisy UI event handlers.
+                </p>
+              </div>
+              <article class="code-panel glass-panel">
+                <div class="code-title">
+                  <span>Timing helpers</span>
+                  <button class="copy-button" data-copy="await sleep(500);&#10;await timeout(fetch(&quot;https://api.github.com&quot;), 3000);&#10;await retry(loadData, { retries: 3, delay: 500, factor: 2 });">Copy</button>
+                </div>
+                <pre><code>await sleep(500);
+await timeout(fetch("https://api.github.com"), 3000);
+await retry(loadData, { retries: 3, delay: 500, factor: 2 });</code></pre>
+              </article>
+            </section>
+
+            <section id="safety" class="doc-section" data-motion>
+              <div class="section-heading">
+                <p class="eyebrow">Safety</p>
+                <h2>Redact first, then log</h2>
+                <p>
+                  Safety helpers are built around one rule: keep structure, remove secrets.
+                  They protect common keys like `token`, `password`, `authorization`,
+                  `cookie`, `secret`, `apiKey`, and private key fields.
+                </p>
+              </div>
+              <div class="two-column">
+                <article class="code-panel glass-panel">
+                  <div class="code-title">
+                    <span>Safe logger</span>
+                    <button class="copy-button" data-copy="const logger = createSafeLogger(console);&#10;&#10;logger.info(&quot;request&quot;, {&#10;  user: &quot;shnwazdeveloper&quot;,&#10;  token: &quot;private-token&quot;&#10;});">Copy</button>
+                  </div>
+                  <pre><code>const logger = createSafeLogger(console);
+
+logger.info("request", {
+  user: "shnwazdeveloper",
+  token: "private-token"
+});</code></pre>
+                </article>
+                <article class="doc-list glass-panel">
+                  <h3>Repo safety checks</h3>
+                  <ul>
+                    <li>`npm run secret:check` scans source and docs.</li>
+                    <li>`npm run safe:check` runs secret scan, tests, and pack dry-run.</li>
+                    <li>CI runs safety checks on pushes and pull requests.</li>
+                    <li>The publish workflow checks secrets before `npm publish`.</li>
+                  </ul>
+                </article>
+              </div>
+            </section>
+
+            <section id="resilience" class="doc-section" data-motion>
+              <div class="section-heading">
+                <p class="eyebrow">Resilience</p>
+                <h2>Safer calls under pressure</h2>
+                <p>
+                  These helpers reduce repeated abuse, stop retry storms, and keep request
+                  logs useful without exposing tokens or private headers.
+                </p>
+              </div>
+              <div class="two-column">
+                <article class="code-panel glass-panel">
+                  <div class="code-title">
+                    <span>safeFetch</span>
+                    <button class="copy-button" data-copy="const result = await safeFetch(&quot;https://api.github.com&quot;, {&#10;  allowedOrigins: [&quot;https://api.github.com&quot;],&#10;  timeout: 3000&#10;});&#10;&#10;logger.info(&quot;request&quot;, result.safeRequest);">Copy</button>
+                  </div>
+                  <pre><code>const result = await safeFetch("https://api.github.com", {
+  allowedOrigins: ["https://api.github.com"],
+  timeout: 3000
+});
+
+logger.info("request", result.safeRequest);</code></pre>
+                </article>
+                <article class="code-panel glass-panel">
+                  <div class="code-title">
+                    <span>Rate limit and circuit breaker</span>
+                    <button class="copy-button" data-copy="const limiter = createRateLimiter({ limit: 5, interval: 60000 });&#10;limiter.assert(&quot;user:shnwazdeveloper&quot;);&#10;&#10;const breaker = createCircuitBreaker(loadData, {&#10;  failureThreshold: 3,&#10;  recoveryTime: 30000&#10;});&#10;&#10;await breaker.execute();">Copy</button>
+                  </div>
+                  <pre><code>const limiter = createRateLimiter({ limit: 5, interval: 60000 });
+limiter.assert("user:shnwazdeveloper");
+
+const breaker = createCircuitBreaker(loadData, {
+  failureThreshold: 3,
+  recoveryTime: 30000
+});
+
+await breaker.execute();</code></pre>
+                </article>
+              </div>
+            </section>
+
+            <section id="publish" class="doc-section" data-motion>
+              <div class="section-heading">
+                <p class="eyebrow">Publishing</p>
+                <h2>Release to GitHub Packages</h2>
+                <p>
+                  New versions publish when a version tag is pushed. The workflow installs,
+                  checks for secrets, runs tests, and publishes with GitHub's package token.
+                </p>
+              </div>
+              <ol class="timeline glass-panel">
+                <li><span>Edit code or docs.</span></li>
+                <li><span>Update `version` in `package.json`.</span></li>
+                <li><span>Run `npm run safe:check`.</span></li>
+                <li><span>Commit and push `main`.</span></li>
+                <li><span>Push a tag like `v0.4.0`.</span></li>
+                <li><span>GitHub Actions publishes the package.</span></li>
+              </ol>
+            </section>
+
+            <section id="troubleshooting" class="doc-section" data-motion>
+              <div class="section-heading">
+                <p class="eyebrow">Troubleshooting</p>
+                <h2>Common install and publish issues</h2>
+              </div>
+              <div class="faq-list">
+                <details class="glass-panel">
+                  <summary>npm 404 from registry.npmjs.org</summary>
+                  <p>npm is using the wrong registry. Set the GitHub Packages scope registry.</p>
+                  <pre><code>npm config set "@shnwazdeveloper:registry" "https://npm.pkg.github.com" --location=user</code></pre>
+                </details>
+                <details class="glass-panel">
+                  <summary>npm 401 Unauthorized</summary>
+                  <p>npm needs a GitHub token with `read:packages`.</p>
+                  <pre><code>gh auth refresh -h github.com -s read:packages
+$token = gh auth token
+npm config set "//npm.pkg.github.com/:_authToken" "$token" --location=user</code></pre>
+                </details>
+                <details class="glass-panel">
+                  <summary>Package version already exists</summary>
+                  <p>GitHub Packages does not republish the same version. Increase `package.json` and push a matching new tag.</p>
+                </details>
+                <details class="glass-panel">
+                  <summary>Secret check fails</summary>
+                  <p>Remove the secret from source/docs. Use placeholders that do not look like real tokens, then run `npm run safe:check` again.</p>
+                </details>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+
+      <footer class="site-footer section-inner">
+        <div>
+          <strong>@shnwazdeveloper/shnwazdev</strong>
+          <p>Safe realtime utilities for small JavaScript systems.</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/shnwazdeveloper/shnwazdev-package">Repository</a>
+          <a href="https://github.com/shnwazdeveloper/shnwazdev-package/pkgs/npm/shnwazdev">Package</a>
+          <a href="#top">Back to top</a>
+        </div>
+      </footer>
+    </div>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>

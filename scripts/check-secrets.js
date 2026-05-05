@@ -18,6 +18,8 @@ const ignoredFiles = new Set([
 
 const scannedExtensions = new Set([
   ".cjs",
+  ".css",
+  ".html",
   ".js",
   ".json",
   ".md",
