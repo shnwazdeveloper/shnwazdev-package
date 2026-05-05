@@ -407,8 +407,8 @@ h1 span {
 
 .docs-layout {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  gap: 24px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 20px;
   padding: 54px 0 72px;
 }
 
@@ -417,15 +417,16 @@ h1 span {
   top: 106px;
   align-self: start;
   display: grid;
-  gap: 4px;
-  padding: 12px;
+  gap: 2px;
+  padding: 8px;
 }
 
 .docs-sidebar a {
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 8px;
   color: var(--muted);
-  font-size: 0.93rem;
+  font-size: 0.9rem;
+  line-height: 1.25;
 }
 
 .docs-sidebar a:hover,
@@ -713,12 +714,15 @@ pre code {
     position: relative;
     top: auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(116px, 1fr));
+    gap: 6px;
+    padding: 8px;
     overflow: visible;
   }
 
   .docs-sidebar a {
     min-width: 0;
+    padding: 8px 9px;
     text-align: center;
     overflow-wrap: anywhere;
   }
