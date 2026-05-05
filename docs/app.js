@@ -1,7 +1,7 @@
 const copyButtons = document.querySelectorAll("[data-copy]");
 const filterButtons = document.querySelectorAll("[data-filter]");
 const apiCards = document.querySelectorAll("[data-group]");
-const navLinks = document.querySelectorAll(".docs-sidebar a, .top-nav a");
+const navLinks = document.querySelectorAll(".docs-tabs a, .top-nav a");
 const sections = [...document.querySelectorAll("main section[id]")];
 const motionTargets = document.querySelectorAll("[data-motion]");
 
