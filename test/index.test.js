@@ -118,6 +118,47 @@ test("sleep, timeout, and retry handle async control flow", async () => {
   assert.equal(attempts, 3);
 });
 
+test("sleep cleans up abort listeners after resolve and abort", async () => {
+  function trackableController() {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const originalAdd = signal.addEventListener.bind(signal);
+    const originalRemove = signal.removeEventListener.bind(signal);
+    let activeAbortListeners = 0;
+
+    signal.addEventListener = (type, listener, options) => {
+      if (type === "abort") {
+        activeAbortListeners += 1;
+      }
+      return originalAdd(type, listener, options);
+    };
+
+    signal.removeEventListener = (type, listener, options) => {
+      if (type === "abort") {
+        activeAbortListeners -= 1;
+      }
+      return originalRemove(type, listener, options);
+    };
+
+    return {
+      controller,
+      activeAbortListeners: () => activeAbortListeners
+    };
+  }
+
+  const resolved = trackableController();
+  await sleep(1, { signal: resolved.controller.signal });
+  assert.equal(resolved.activeAbortListeners(), 0);
+
+  const aborted = trackableController();
+  const sleeping = sleep(50, { signal: aborted.controller.signal });
+  assert.equal(aborted.activeAbortListeners(), 1);
+  aborted.controller.abort();
+
+  await assert.rejects(sleeping, { name: "AbortError" });
+  assert.equal(aborted.activeAbortListeners(), 0);
+});
+
 test("debounce and throttle control call frequency", async () => {
   const debouncedValues = [];
   const debounced = debounce((value) => debouncedValues.push(value), 5);
