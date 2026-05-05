@@ -1,7 +1,7 @@
 {
   "name": "@shnwazdeveloper/shnwazdev",
-  "version": "0.2.1",
-  "description": "Real-time utility toolkit for shnwazdev projects.",
+  "version": "0.3.0",
+  "description": "Safe real-time utility toolkit for shnwazdev projects.",
   "type": "module",
   "main": "src/index.js",
   "exports": {
@@ -13,9 +13,11 @@
     "LICENSE"
   ],
   "scripts": {
+    "secret:check": "node scripts/check-secrets.js",
+    "safe:check": "npm run secret:check && npm test && npm run pack:check",
     "test": "node --test",
     "pack:check": "npm pack --dry-run",
-    "prepublishOnly": "npm test"
+    "prepublishOnly": "npm run secret:check && npm test"
   },
   "repository": {
     "type": "git",
@@ -31,7 +33,10 @@
     "utilities",
     "realtime",
     "polling",
-    "events"
+    "events",
+    "privacy",
+    "redaction",
+    "security"
   ],
   "author": "shnwazdeveloper",
   "license": "MIT",

@@ -1,16 +1,16 @@
-name: Publish Package
+name: CI
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - main
+  pull_request:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
-  publish:
+  check:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,16 +21,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://npm.pkg.github.com
-          scope: "@shnwazdeveloper"
 
       - name: Install dependencies
         run: npm install
 
       - name: Safe check
-        run: npm run secret:check && npm test
-
-      - name: Publish
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run safe:check

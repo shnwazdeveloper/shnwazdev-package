@@ -5,11 +5,17 @@ import {
   createHeartbeat,
   createPoller,
   createRealtimeStore,
+  assertNoSecrets,
+  createSafeLogger,
   debounce,
+  detectSecrets,
   greet,
+  maskSecret,
   packageName,
   profile,
+  redactSensitiveData,
   retry,
+  safeJsonStringify,
   sleep,
   throttle,
   timeout
@@ -178,4 +184,61 @@ test("debounce and throttle control call frequency", async () => {
 
   assert.equal(throttledValues[0], "first");
   assert.equal(throttledValues.at(-1), "third");
+});
+
+test("security helpers redact sensitive keys and token patterns", () => {
+  const bearerToken = "abcdefghijklmnopqrstuvwxyz" + "123456";
+  const data = {
+    username: "shnwazdeveloper",
+    password: "super-secret-password",
+    nested: {
+      message: `Bearer ${bearerToken}`
+    }
+  };
+
+  const redacted = redactSensitiveData(data);
+  assert.deepEqual(redacted, {
+    username: "shnwazdeveloper",
+    password: "[REDACTED]",
+    nested: {
+      message: "[REDACTED]"
+    }
+  });
+
+  const findings = detectSecrets(data);
+  assert.equal(findings.length, 2);
+  assert.equal(findings[0].type, "sensitive-key");
+  assert.equal(findings[0].path, "$.password");
+  assert.match(findings[0].preview, /^\*+$/);
+});
+
+test("security helpers stringify, assert, mask, and log safely", () => {
+  assert.equal(maskSecret("abcdefghijkl"), "********");
+  assert.equal(
+    maskSecret("abcdefghijkl", { visibleStart: 4, visibleEnd: 4 }),
+    "abcd********ijkl"
+  );
+
+  const circular = {
+    token: "ghp_" + "123456789012345678901234567890123456"
+  };
+  circular.self = circular;
+  const json = safeJsonStringify(circular);
+  assert.match(json, /"token": "\[REDACTED\]"/);
+  assert.match(json, /"self": "\[Circular\]"/);
+
+  assert.throws(
+    () => assertNoSecrets({ apiKey: "12345678901234567890" }),
+    { name: "SensitiveDataError" }
+  );
+
+  const logged = [];
+  const logger = createSafeLogger({
+    log: (...args) => logged.push(args)
+  });
+  logger.log("user", {
+    token: "gho_" + "123456789012345678901234567890123456"
+  });
+
+  assert.deepEqual(logged, [["user", { token: "[REDACTED]" }]]);
 });

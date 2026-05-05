@@ -27,3 +27,12 @@ export {
   throttle,
   timeout
 } from "./timing.js";
+
+export {
+  assertNoSecrets,
+  createSafeLogger,
+  detectSecrets,
+  maskSecret,
+  redactSensitiveData,
+  safeJsonStringify
+} from "./security.js";

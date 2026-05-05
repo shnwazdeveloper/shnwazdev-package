@@ -1,8 +1,8 @@
 # @shnwazdeveloper/shnwazdev
 
-Real-time utility toolkit for `shnwazdev` projects, published with GitHub Packages.
+Safe real-time utility toolkit for `shnwazdev` projects, published with GitHub Packages.
 
-Use this package when you need small, dependency-free helpers for live app state, event messages, API polling, bot status checks, retries, timeouts, and fast UI input control.
+Use this package when you need small, dependency-free helpers for live app state, event messages, API polling, bot status checks, retries, timeouts, fast UI input control, and safe logging that avoids leaking tokens or private data.
 
 ## Package Links
 
@@ -31,7 +31,7 @@ npm config set "//npm.pkg.github.com/:_authToken" "$token" --location=user
 Then install:
 
 ```bash
-npm install @shnwazdeveloper/shnwazdev@0.2.1
+npm install @shnwazdeveloper/shnwazdev@0.3.0
 ```
 
 ## What Is Inside
@@ -45,6 +45,12 @@ npm install @shnwazdeveloper/shnwazdev@0.2.1
 - `retry` for retrying unstable operations
 - `debounce` for search boxes, resize handlers, and input events
 - `throttle` for scroll, mousemove, and high-frequency events
+- `redactSensitiveData` for removing passwords, tokens, cookies, and keys
+- `detectSecrets` for finding sensitive values without printing raw secrets
+- `assertNoSecrets` for failing fast when a payload contains sensitive data
+- `safeJsonStringify` for circular-safe, redacted JSON output
+- `createSafeLogger` for console-style logging with automatic redaction
+- `maskSecret` for safe secret previews
 
 ## Quick Start
 
@@ -53,6 +59,7 @@ import {
   createEventBus,
   createPoller,
   createRealtimeStore,
+  createSafeLogger,
   retry,
   timeout
 } from "@shnwazdeveloper/shnwazdev";
@@ -86,6 +93,12 @@ const response = await retry(
 );
 
 console.log(response.status);
+
+const logger = createSafeLogger(console);
+logger.log("safe output", {
+  username: "shnwazdeveloper",
+  token: "example-token-that-will-be-redacted"
+});
 ```
 
 ## Realtime Store
@@ -226,6 +239,95 @@ const onScroll = throttle(() => {
 }, 100);
 ```
 
+## Safety And Data Protection
+
+Use these helpers before logging API responses, request headers, environment snapshots, bot session data, or errors. They are designed to keep useful structure while removing sensitive values.
+
+### Redact Sensitive Data
+
+```js
+import { redactSensitiveData } from "@shnwazdeveloper/shnwazdev";
+
+const safePayload = redactSensitiveData({
+  username: "shnwazdeveloper",
+  password: "my-password",
+  headers: {
+    authorization: "Bearer real-token-value"
+  }
+});
+
+console.log(safePayload);
+```
+
+Output:
+
+```js
+{
+  username: "shnwazdeveloper",
+  password: "[REDACTED]",
+  headers: {
+    authorization: "[REDACTED]"
+  }
+}
+```
+
+### Detect Secrets Without Printing Them
+
+```js
+import { detectSecrets } from "@shnwazdeveloper/shnwazdev";
+
+const findings = detectSecrets({
+  apiKey: "real-api-key-value",
+  message: "Bearer real-token-value"
+});
+
+console.log(findings);
+```
+
+Findings include the path, type, and a masked preview. Raw secret values are not returned.
+
+### Fail Fast If Secrets Exist
+
+```js
+import { assertNoSecrets } from "@shnwazdeveloper/shnwazdev";
+
+assertNoSecrets({
+  public: "safe",
+  token: "private-token"
+});
+```
+
+If sensitive data is found, this throws a `SensitiveDataError`.
+
+### Safe JSON
+
+```js
+import { safeJsonStringify } from "@shnwazdeveloper/shnwazdev";
+
+const payload = { token: "private-token" };
+payload.self = payload;
+
+console.log(safeJsonStringify(payload));
+```
+
+This handles circular objects and redacts sensitive values.
+
+### Safe Logger
+
+```js
+import { createSafeLogger } from "@shnwazdeveloper/shnwazdev";
+
+const logger = createSafeLogger(console);
+
+logger.info("request", {
+  user: "shnwazdeveloper",
+  cookie: "private-cookie",
+  token: "private-token"
+});
+```
+
+The logger keeps normal fields and replaces sensitive fields with `[REDACTED]`.
+
 ## Development
 
 Clone the repository:
@@ -241,10 +343,22 @@ Run tests:
 npm test
 ```
 
+Check for accidental secrets:
+
+```bash
+npm run secret:check
+```
+
 Check what files will be published:
 
 ```bash
 npm run pack:check
+```
+
+Run every safety check before publishing:
+
+```bash
+npm run safe:check
 ```
 
 ## Publish A New Version To Packages
@@ -257,6 +371,7 @@ GitHub Actions publishes this package automatically when a version tag is pushed
 
 ```bash
 npm test
+npm run secret:check
 npm run pack:check
 ```
 
@@ -271,11 +386,21 @@ git push origin main
 5. Create and push a version tag:
 
 ```bash
-git tag v0.2.1
-git push origin v0.2.1
+git tag v0.3.0
+git push origin v0.3.0
 ```
 
 After the tag is pushed, the `Publish Package` GitHub Actions workflow runs and publishes the new version to GitHub Packages.
+
+## How This Package Avoids Leaking Data
+
+- `.env` and `.env.*` are ignored by git.
+- `npm run secret:check` scans source/docs for common leaked token patterns.
+- `npm run safe:check` runs secret scanning, tests, and package dry-run together.
+- The CI workflow runs `safe:check` on pushes and pull requests.
+- The publish workflow runs secret scanning and tests before `npm publish`.
+- Runtime helpers redact sensitive keys like `password`, `token`, `secret`, `apiKey`, `authorization`, `cookie`, and `privateKey`.
+- Detection results only show masked previews, not raw secret values.
 
 ## Troubleshooting
 
