@@ -30,9 +30,19 @@ export {
 
 export {
   assertNoSecrets,
+  constantTimeEqual,
   createSafeLogger,
+  createSecureId,
   detectSecrets,
   maskSecret,
   redactSensitiveData,
+  sanitizeHeaders,
+  sanitizeUrl,
   safeJsonStringify
 } from "./security.js";
+
+export {
+  createCircuitBreaker,
+  createRateLimiter,
+  safeFetch
+} from "./resilience.js";

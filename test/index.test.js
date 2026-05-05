@@ -4,9 +4,13 @@ import {
   createEventBus,
   createHeartbeat,
   createPoller,
+  createCircuitBreaker,
+  createRateLimiter,
   createRealtimeStore,
   assertNoSecrets,
   createSafeLogger,
+  createSecureId,
+  constantTimeEqual,
   debounce,
   detectSecrets,
   greet,
@@ -15,7 +19,10 @@ import {
   profile,
   redactSensitiveData,
   retry,
+  safeFetch,
   safeJsonStringify,
+  sanitizeHeaders,
+  sanitizeUrl,
   sleep,
   throttle,
   timeout
@@ -241,4 +248,133 @@ test("security helpers stringify, assert, mask, and log safely", () => {
   });
 
   assert.deepEqual(logged, [["user", { token: "[REDACTED]" }]]);
+});
+
+test("advanced security helpers create ids, compare safely, and sanitize logs", () => {
+  const id = createSecureId({ prefix: "req_", size: 16 });
+  assert.match(id, /^req_[A-Za-z0-9_-]+$/);
+  assert.notEqual(id, createSecureId({ prefix: "req_", size: 16 }));
+
+  assert.equal(constantTimeEqual("same-value", "same-value"), true);
+  assert.equal(constantTimeEqual("same-value", "other-value"), false);
+
+  assert.deepEqual(
+    sanitizeHeaders({
+      Authorization: "Bearer " + "abcdefghijklmnopqrstuvwxyz123456",
+      "x-safe": "visible"
+    }),
+    {
+      Authorization: "[REDACTED]",
+      "x-safe": "visible"
+    }
+  );
+
+  const safeUrl = sanitizeUrl(
+    "https://example.com/path?q=node&token=private&password=hidden"
+  );
+  assert.equal(
+    safeUrl,
+    "https://example.com/path?q=node&token=%5BREDACTED%5D&password=%5BREDACTED%5D"
+  );
+});
+
+test("rate limiter protects repeated work per key", () => {
+  let now = 1000;
+  const limiter = createRateLimiter({
+    limit: 2,
+    interval: 100,
+    now: () => now
+  });
+
+  assert.deepEqual(limiter.consume("ip:1"), {
+    allowed: true,
+    limit: 2,
+    remaining: 1,
+    resetAt: 1100,
+    retryAfter: 0
+  });
+  assert.equal(limiter.consume("ip:1").allowed, true);
+
+  const blocked = limiter.consume("ip:1");
+  assert.equal(blocked.allowed, false);
+  assert.equal(blocked.retryAfter, 100);
+
+  assert.throws(() => limiter.assert("ip:1"), { name: "RateLimitError" });
+
+  now = 1100;
+  assert.equal(limiter.consume("ip:1").allowed, true);
+});
+
+test("circuit breaker opens after failures and recovers after cooldown", async () => {
+  let now = 0;
+  let shouldFail = true;
+  const states = [];
+  const breaker = createCircuitBreaker(
+    async () => {
+      if (shouldFail) {
+        throw new Error("downstream failed");
+      }
+      return "ok";
+    },
+    {
+      failureThreshold: 2,
+      recoveryTime: 100,
+      now: () => now,
+      onStateChange: (next) => states.push(next)
+    }
+  );
+
+  await assert.rejects(() => breaker.execute(), /downstream failed/);
+  await assert.rejects(() => breaker.execute(), /downstream failed/);
+  assert.equal(breaker.snapshot().state, "open");
+  await assert.rejects(() => breaker.execute(), { name: "CircuitBreakerOpenError" });
+
+  now = 100;
+  shouldFail = false;
+  assert.equal(await breaker.execute(), "ok");
+  assert.equal(breaker.snapshot().state, "closed");
+  assert.deepEqual(states, ["open", "half-open", "closed"]);
+});
+
+test("safeFetch enforces allowed origins and returns redacted request details", async () => {
+  const fetchCalls = [];
+  const fakeFetch = async (url, init) => {
+    fetchCalls.push({ url, init });
+    return {
+      ok: true,
+      status: 200,
+      statusText: "OK"
+    };
+  };
+
+  const result = await safeFetch("https://api.example.com/data?token=private&q=ok", {
+    allowedOrigins: ["https://api.example.com"],
+    allowedParams: ["q"],
+    fetch: fakeFetch,
+    init: {
+      headers: {
+        authorization: "Bearer " + "abcdefghijklmnopqrstuvwxyz123456",
+        accept: "application/json"
+      }
+    },
+    timeout: 50
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(fetchCalls[0].url, "https://api.example.com/data?token=private&q=ok");
+  assert.deepEqual(result.safeRequest, {
+    url: "https://api.example.com/data?token=%5BREDACTED%5D&q=ok",
+    headers: {
+      authorization: "[REDACTED]",
+      accept: "application/json"
+    }
+  });
+
+  await assert.rejects(
+    () => safeFetch("https://evil.example.com/data", {
+      allowedOrigins: ["https://api.example.com"],
+      fetch: fakeFetch
+    }),
+    { name: "UnsafeUrlError" }
+  );
 });

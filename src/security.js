@@ -46,6 +46,17 @@ const DEFAULT_SECRET_PATTERNS = [
   }
 ];
 
+const SAFE_URL_PARAM_KEYS = [
+  "page",
+  "per_page",
+  "q",
+  "query",
+  "sort",
+  "order",
+  "limit",
+  "offset"
+];
+
 function normalizeKey(key) {
   return String(key).replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 }
@@ -250,4 +261,111 @@ export function createSafeLogger(logger = console, options = {}) {
   }
 
   return safeLogger;
+}
+
+export function constantTimeEqual(left, right) {
+  const encoder = new TextEncoder();
+  const leftBytes = encoder.encode(String(left));
+  const rightBytes = encoder.encode(String(right));
+  const length = Math.max(leftBytes.length, rightBytes.length);
+  let diff = leftBytes.length ^ rightBytes.length;
+
+  for (let index = 0; index < length; index += 1) {
+    diff |= (leftBytes[index] ?? 0) ^ (rightBytes[index] ?? 0);
+  }
+
+  return diff === 0;
+}
+
+function base64UrlEncode(bytes) {
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  if (typeof btoa === "function") {
+    return btoa(binary)
+      .replaceAll("+", "-")
+      .replaceAll("/", "_")
+      .replaceAll("=", "");
+  }
+
+  return Buffer.from(bytes)
+    .toString("base64")
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+}
+
+export function createSecureId(options = {}) {
+  const size = options.size ?? 24;
+  if (!Number.isInteger(size) || size < 8) {
+    throw new TypeError("size must be an integer of at least 8 bytes");
+  }
+
+  if (!globalThis.crypto?.getRandomValues) {
+    throw new Error("Secure random values are not available in this runtime");
+  }
+
+  const bytes = new Uint8Array(size);
+  globalThis.crypto.getRandomValues(bytes);
+  return `${options.prefix ?? ""}${base64UrlEncode(bytes)}`;
+}
+
+function entriesFromHeaders(headers) {
+  if (!headers) {
+    return [];
+  }
+
+  if (typeof headers.entries === "function") {
+    return [...headers.entries()];
+  }
+
+  if (Array.isArray(headers)) {
+    return headers;
+  }
+
+  return Object.entries(headers);
+}
+
+export function sanitizeHeaders(headers, options = {}) {
+  const redaction = options.redaction ?? DEFAULT_REDACTION;
+  const sensitiveKeys = options.sensitiveKeys ?? DEFAULT_SENSITIVE_KEYS;
+  const output = {};
+
+  for (const [key, value] of entriesFromHeaders(headers)) {
+    output[key] = isSensitiveKey(key, sensitiveKeys)
+      ? redaction
+      : redactSensitiveData(value, options);
+  }
+
+  return output;
+}
+
+export function sanitizeUrl(input, options = {}) {
+  const redaction = options.redaction ?? DEFAULT_REDACTION;
+  const allowedParams = new Set(options.allowedParams ?? SAFE_URL_PARAM_KEYS);
+  const sensitiveKeys = options.sensitiveKeys ?? DEFAULT_SENSITIVE_KEYS;
+
+  let url;
+  try {
+    url = new URL(input, options.baseUrl);
+  } catch {
+    return redaction;
+  }
+
+  if (url.username || url.password) {
+    url.username = "";
+    url.password = "";
+  }
+
+  for (const key of [...url.searchParams.keys()]) {
+    if (!allowedParams.has(key) || isSensitiveKey(key, sensitiveKeys)) {
+      url.searchParams.set(key, redaction);
+    } else {
+      url.searchParams.set(key, redactSensitiveData(url.searchParams.get(key), options));
+    }
+  }
+
+  return url.toString();
 }

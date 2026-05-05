@@ -31,7 +31,7 @@ npm config set "//npm.pkg.github.com/:_authToken" "$token" --location=user
 Then install:
 
 ```bash
-npm install @shnwazdeveloper/shnwazdev@0.3.0
+npm install @shnwazdeveloper/shnwazdev@0.4.0
 ```
 
 ## What Is Inside
@@ -51,6 +51,13 @@ npm install @shnwazdeveloper/shnwazdev@0.3.0
 - `safeJsonStringify` for circular-safe, redacted JSON output
 - `createSafeLogger` for console-style logging with automatic redaction
 - `maskSecret` for safe secret previews
+- `createSecureId` for crypto-safe request IDs and trace IDs
+- `constantTimeEqual` for safer token/signature comparisons
+- `sanitizeHeaders` for redacted header logs
+- `sanitizeUrl` for redacted URL logs
+- `createRateLimiter` for local abuse protection
+- `createCircuitBreaker` for failing safely when a dependency is unhealthy
+- `safeFetch` for timeout-aware, origin-guarded fetch calls with safe request logs
 
 ## Quick Start
 
@@ -58,9 +65,11 @@ npm install @shnwazdeveloper/shnwazdev@0.3.0
 import {
   createEventBus,
   createPoller,
+  createRateLimiter,
   createRealtimeStore,
   createSafeLogger,
   retry,
+  safeFetch,
   timeout
 } from "@shnwazdeveloper/shnwazdev";
 
@@ -99,6 +108,16 @@ logger.log("safe output", {
   username: "shnwazdeveloper",
   token: "example-token-that-will-be-redacted"
 });
+
+const limiter = createRateLimiter({ limit: 10, interval: 60000 });
+limiter.assert("user:shnwazdeveloper");
+
+const { status, safeRequest } = await safeFetch("https://api.github.com", {
+  allowedOrigins: ["https://api.github.com"],
+  timeout: 3000
+});
+
+logger.info("request finished", { status, safeRequest });
 ```
 
 ## Realtime Store
@@ -328,6 +347,113 @@ logger.info("request", {
 
 The logger keeps normal fields and replaces sensitive fields with `[REDACTED]`.
 
+### Secure IDs And Safer Comparisons
+
+```js
+import {
+  constantTimeEqual,
+  createSecureId
+} from "@shnwazdeveloper/shnwazdev";
+
+const requestId = createSecureId({ prefix: "req_", size: 16 });
+console.log(requestId);
+
+if (constantTimeEqual(userInputToken, expectedToken)) {
+  console.log("token matched");
+}
+```
+
+`createSecureId` uses crypto-safe random bytes. `constantTimeEqual` compares strings without returning early on the first different character.
+
+### Safe URL And Header Logging
+
+```js
+import {
+  sanitizeHeaders,
+  sanitizeUrl
+} from "@shnwazdeveloper/shnwazdev";
+
+console.log(sanitizeUrl("https://example.com/search?q=node&token=private"));
+
+console.log(sanitizeHeaders({
+  authorization: "Bearer private",
+  accept: "application/json"
+}));
+```
+
+This keeps useful debugging details while removing sensitive values.
+
+## Advanced Resilience Helpers
+
+### Rate Limiter
+
+Use `createRateLimiter` to protect local commands, bots, API handlers, and expensive tasks from repeated calls.
+
+```js
+import { createRateLimiter } from "@shnwazdeveloper/shnwazdev";
+
+const limiter = createRateLimiter({
+  limit: 5,
+  interval: 60000
+});
+
+try {
+  limiter.assert("user:shnwazdeveloper");
+  console.log("allowed");
+} catch (error) {
+  console.log(error.name, error.retryAfter);
+}
+```
+
+### Circuit Breaker
+
+Use `createCircuitBreaker` around unstable downstream work. After too many failures, it opens and stops calling the failing task until the recovery time passes.
+
+```js
+import { createCircuitBreaker } from "@shnwazdeveloper/shnwazdev";
+
+const breaker = createCircuitBreaker(
+  async () => {
+    const response = await fetch("https://api.github.com");
+    if (!response.ok) {
+      throw new Error("GitHub request failed");
+    }
+    return response;
+  },
+  {
+    failureThreshold: 3,
+    recoveryTime: 30000
+  }
+);
+
+const response = await breaker.execute();
+console.log(response.status);
+```
+
+### Safe Fetch
+
+Use `safeFetch` when you want origin checks, timeouts, and safe request metadata for logs.
+
+```js
+import { safeFetch } from "@shnwazdeveloper/shnwazdev";
+
+const result = await safeFetch("https://api.github.com", {
+  allowedOrigins: ["https://api.github.com"],
+  timeout: 3000,
+  init: {
+    headers: {
+      authorization: "Bearer private",
+      accept: "application/json"
+    }
+  }
+});
+
+console.log(result.status);
+console.log(result.safeRequest);
+```
+
+`safeRequest` contains a sanitized URL and sanitized headers, so you can log it without exposing private data.
+
 ## Development
 
 Clone the repository:
@@ -386,8 +512,8 @@ git push origin main
 5. Create and push a version tag:
 
 ```bash
-git tag v0.3.0
-git push origin v0.3.0
+git tag v0.4.0
+git push origin v0.4.0
 ```
 
 After the tag is pushed, the `Publish Package` GitHub Actions workflow runs and publishes the new version to GitHub Packages.
@@ -401,6 +527,8 @@ After the tag is pushed, the `Publish Package` GitHub Actions workflow runs and 
 - The publish workflow runs secret scanning and tests before `npm publish`.
 - Runtime helpers redact sensitive keys like `password`, `token`, `secret`, `apiKey`, `authorization`, `cookie`, and `privateKey`.
 - Detection results only show masked previews, not raw secret values.
+- `safeFetch` can restrict calls to allowed origins and returns redacted request metadata for logs.
+- `createRateLimiter` and `createCircuitBreaker` help reduce repeated abuse and unsafe retry storms.
 
 ## Troubleshooting
 
