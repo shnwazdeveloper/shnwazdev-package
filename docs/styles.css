@@ -76,6 +76,23 @@ img {
   margin: 0 auto;
 }
 
+.page-shell,
+.section-inner,
+.docs-layout,
+.docs-content,
+.code-grid,
+.code-panel,
+.api-grid,
+.stat-card,
+.api-card,
+.doc-list,
+.filter-bar,
+.timeline,
+.faq-list details {
+  max-width: 100%;
+  min-width: 0;
+}
+
 .glass-panel {
   background: var(--glass);
   border: 1px solid var(--line);
@@ -638,12 +655,15 @@ code {
   .docs-sidebar {
     position: relative;
     top: auto;
-    display: flex;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    overflow: visible;
   }
 
   .docs-sidebar a {
-    flex: 0 0 auto;
+    min-width: 0;
+    text-align: center;
+    overflow-wrap: anywhere;
   }
 }
 
@@ -707,6 +727,12 @@ code {
 
   .hero-facts span {
     width: 100%;
+  }
+
+  pre {
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
   .stat-card,
