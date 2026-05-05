@@ -1,0 +1,39 @@
+{
+  "name": "@shnwazdeveloper/shnwazdev",
+  "version": "0.1.0",
+  "description": "Personal starter utilities for shnwazdev projects.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "pack:check": "npm pack --dry-run",
+    "prepublishOnly": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shnwazdeveloper/shnwazdev-package.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
+  "keywords": [
+    "shnwazdev",
+    "github-packages",
+    "utilities"
+  ],
+  "author": "shnwazdeveloper",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shnwazdeveloper/shnwazdev-package/issues"
+  },
+  "homepage": "https://github.com/shnwazdeveloper/shnwazdev-package#readme"
+}
